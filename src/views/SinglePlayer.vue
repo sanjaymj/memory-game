@@ -1,13 +1,28 @@
 
 <template>
   <div>
-    <v-alert
-      v-if="gameOver"
-      border="top"
-      color="red lighten-2"
-      dark
-    >Game completed in {{minutes}}: {{seconds}}</v-alert>
+    <v-dialog v-model="gameStarted" width="500">
+      <v-card>
+        <v-card-title class="headline grey lighten-2">All cards matched in {{totalTurns}} attems</v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="success" text @click="restartGame()">Try again</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="goBack()">Exit</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-container fluid>
+      <div v-if="gameStarted">
+        <v-chip class="ma-2" color="warning" label>attempts {{totalTurns}}</v-chip>
+        <v-chip class="ma-2 float-right" color="success" label>
+          <v-icon left>av_timer</v-icon>
+          {{timeToRender}}
+        </v-chip>
+      </div>
       <v-row dense>
         <v-col v-for="card in cards" :key="card.id" :cols="card.flex">
           <v-card v-if="!defaultImages" @click="toggleCard(card)">
@@ -86,14 +101,14 @@ export default class SinglePlayer extends Vue {
   flippedSource = "https://cdn.vuetifyjs.com/images/cards/plane.jpg";
   gameStarted = false;
   matchedCardCount = 0;
-
+  public totalTurns = 0;
   public gameOver = false;
 
   myInterval: any;
-  time = "00:00:00";
   hours = 0;
   minutes = 0;
   seconds = 0;
+  timeToRender = "00:00";
   progressValue = 0;
   public cardOriginal: Card = {
     id: 0,
@@ -142,9 +157,10 @@ export default class SinglePlayer extends Vue {
 
         setTimeout(() => {
           this.count = 0;
+          this.totalTurns++;
           this.cards.forEach(card => (card.isFlipped = true));
           this.findWinner();
-        }, 3000);
+        }, 1000);
       }
     }
   }
@@ -158,7 +174,12 @@ export default class SinglePlayer extends Vue {
     }
   }
   created() {
+    this.createBoard();
+  }
+
+  createBoard() {
     const totalCardCount = 16;
+    this.cards = [];
     for (let i = 0; i < totalCardCount; i++) {
       if (this.defaultImages) {
         console.log("here");
@@ -189,13 +210,26 @@ export default class SinglePlayer extends Vue {
     console.log(this.cards);
     //this.shuffle();
   }
-
   shuffle() {
     for (let i = this.cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
     }
     console.log(this.cards);
+  }
+
+  restartGame() {
+    this.gameOver = false;
+    this.totalTurns = 0;
+    this.minutes = 0;
+    this.seconds = 0;
+    this.timeToRender = "00:00";
+    this.createBoard();
+    this.startGame();
+  }
+
+  goBack() {
+    this.$router.back();
   }
 
   startGame() {
@@ -210,6 +244,8 @@ export default class SinglePlayer extends Vue {
       } else {
         this.seconds = this.seconds + 1;
       }
+      this.timeToRender =
+        ("0" + this.minutes).slice(-2) + ":" + ("0" + this.seconds).slice(-2);
     }, 1000);
   }
 

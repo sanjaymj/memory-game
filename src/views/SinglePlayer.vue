@@ -20,7 +20,7 @@
               <transition name="flip">
             <v-img v-if="!card.isFlipped || card.isMatched"
               :src="card.avatar"
-              class="white--text align-end"
+              class="white--text align-end match-overlay"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               height="200px"
             >
@@ -36,22 +36,22 @@
           </v-card>
 
           <v-card v-else @click="toggleCard(card)">
-              <transition name="flip">
-            <v-img v-if="!card.isFlipped || card.isMatched"
-              :src="cardImage(card)"
-              class="white--text align-end"
-              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
-            >
-            </v-img>
-            <v-img v-else
-              :src="flippedSource"
-              class="white--text align-end"
-              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
-            >
-            </v-img>
-            </transition>
+                <v-img v-if="!card.isFlipped || card.isMatched"
+                :src="cardImage(card)"
+                class="white--text align-end"
+                v-bind:class="{'match-overlay': card.isMatched}"
+                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                height="200px"
+                >
+                </v-img>
+                <v-img v-else
+                :src="flippedSource"
+                class="white--text align-end"
+                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                height="200px"
+                >
+                </v-img>
+            
           </v-card>
          
         </v-col>
@@ -99,7 +99,7 @@ export default class SinglePlayer extends Vue {
 
     public gameOver = false;
     
-
+    myInterval: any;
     time = '00:00:00';
     hours = 0;
     minutes = 0;
@@ -162,6 +162,9 @@ export default class SinglePlayer extends Vue {
     const card = this.cards.find(card => !card.isMatched);
     console.log(!!card);
     this.gameOver = !card;
+    if(this.gameOver) {
+        clearInterval(this.myInterval);
+    }
   }
     created() {
       const totalCardCount = 16;
@@ -206,10 +209,8 @@ export default class SinglePlayer extends Vue {
             card.isFlipped = true;
         });
         this.gameStarted = true;
-        setInterval(()=> {
-            if(this.gameOver) {
-                clearInterval();
-            }
+        this.myInterval = setInterval(()=> {
+            
             if(this.seconds == 59) {
                 this.seconds = 0;
                 this.minutes = this.minutes + 1;
@@ -244,4 +245,12 @@ export default class SinglePlayer extends Vue {
     opacity: 0;
   
   }
+
+  .match-overlay {
+      opacity: 0.7;
+      background-image: url("../assets/check-solid.svg");
+      background-repeat: no-repeat;
+      background-position: center;
+  }
+
 </style>

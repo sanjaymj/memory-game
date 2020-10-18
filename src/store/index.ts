@@ -11,16 +11,16 @@ const state = {
 };
 
 const mutations = {
-  updateImages(state, payload) {
+  updateImages(state: any, payload: any) {
     console.log('update!!!!!');
     state.images = payload.images;
   },
 
-  setNavbarState(state, payload) {
+  setNavbarState(state: any, payload: boolean) {
     state.hideNavbar = payload;
   },
 
-  setDefaultMode(state,payload) {
+  setDefaultMode(state: any,payload: boolean) {
     state.defaultImages = payload;
   }
 }

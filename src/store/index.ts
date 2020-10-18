@@ -20,7 +20,7 @@ const mutations = {
     state.hideNavbar = payload;
   },
 
-  setDefaultMode(state: any,payload: boolean) {
+  setDefaultMode(state: any, payload: boolean) {
     state.defaultImages = payload;
   }
 }

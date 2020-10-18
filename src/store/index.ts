@@ -3,13 +3,29 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
-  state: {
+const state = {
+  images: [],
+  stored: true,
+  hideNavbar: false,
+  defaultImages: true
+};
+
+const mutations = {
+  updateImages(state, payload) {
+    console.log('update!!!!!');
+    state.images = payload.images;
   },
-  mutations: {
+
+  setNavbarState(state, payload) {
+    state.hideNavbar = payload;
   },
-  actions: {
-  },
-  modules: {
+
+  setDefaultMode(state,payload) {
+    state.defaultImages = payload;
   }
-})
+}
+
+export default new Vuex.Store({
+  state,
+  mutations
+});

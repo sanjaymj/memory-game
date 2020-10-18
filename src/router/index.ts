@@ -1,14 +1,26 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
+import SignUp from '../views/SignUp.vue'
+import SinglePlayer from '../views/SinglePlayer.vue'
 
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
+    name: 'SignUp',
+    component: SignUp
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/singleplayer',
+    name: 'SinglePlayer',
+    component: SinglePlayer
   },
   {
     path: '/about',

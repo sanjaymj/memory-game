@@ -6,3 +6,9 @@ export interface Card {
     avatar: String;
     flex?: number;
 }
+
+export enum CardCategory {
+    HUCCHA,
+    CAR,
+    CUSTOM
+}

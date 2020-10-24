@@ -1,7 +1,7 @@
 
 <template>
   <div>
-    <v-dialog v-model="gameStarted" width="500">
+    <v-dialog v-model="gameOver" width="500">
       <v-card>
         <v-card-title class="headline grey lighten-2">All cards matched in {{totalTurns}} attems</v-card-title>
         <v-divider></v-divider>
@@ -14,7 +14,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
     <v-container fluid>
       <div v-if="gameStarted">
         <v-chip class="ma-2" color="warning" label>attempts {{totalTurns}}</v-chip>
@@ -26,22 +25,20 @@
       <v-row dense>
         <v-col v-for="card in cards" :key="card.id" :cols="card.flex">
           <v-card v-if="!defaultImages" @click="toggleCard(card)">
-            <transition name="flip">
-              <v-img
-                v-if="!card.isFlipped || card.isMatched"
-                :src="card.avatar"
-                class="white--text align-end match-overlay"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              ></v-img>
-              <v-img
-                v-else
-                :src="flippedSource"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              ></v-img>
-            </transition>
+            <v-img
+              v-if="!card.isFlipped || card.isMatched"
+              :src="card.avatar"
+              class="white--text align-end match-overlay"
+              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+              height="200px"
+            ></v-img>
+            <v-img
+              v-else
+              :src="flippedSource"
+              class="white--text align-end"
+              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+              height="200px"
+            ></v-img>
           </v-card>
 
           <v-card v-else @click="toggleCard(card)">
@@ -272,7 +269,16 @@ export default class SinglePlayer extends Vue {
 }
 
 .match-overlay {
+  transition-delay: 0.75s;
   opacity: 0.7;
+  background-image: url("../assets/check-solid.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 5px solid black;
+}
+
+.match-overlay {
+  opacity: 0.5;
   background-image: url("../assets/check-solid.svg");
   background-repeat: no-repeat;
   background-position: center;

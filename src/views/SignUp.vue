@@ -35,6 +35,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import * as firebase from "firebase";
+import { FirebaseDataHandler } from "../services/FirebaseDataHandler";
 import store from "../store";
 @Component({})
 export default class SignUp extends Vue {
@@ -45,12 +47,33 @@ export default class SignUp extends Vue {
     v => v.length <= 10 || "Name must be less than 10 characters"
   ];
   onButtonClick() {
+    new FirebaseDataHandler().signInAnonymously(this.firstname);
     this.$router.push("/home");
     store.commit("setNavbarState", false);
   }
 
   created() {
+    this.testUrlValidation();
     store.commit("setNavbarState", true);
+  }
+
+  testUrlValidation() {
+    console.log("checking rules ###");
+    const validUrl1 = "google.de/test/?q=1";
+    const inValidUrl1 = "google.de/test?q=1";
+
+    const validUrl2 = "google.de/test.html?q=1";
+    const inValidUrl2 = "google.de/test.html/?q=1";
+
+    const url = validUrl1;
+
+    if (url.match("(.html//?)")) {
+      console.log("invalid");
+    } else if (!url.match("(.html/?)")) {
+      console.log("invalid");
+    } else {
+      console.log("valid");
+    }
   }
 }
 </script>

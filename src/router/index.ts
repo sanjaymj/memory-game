@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
 import SignUp from '../views/SignUp.vue'
 import SinglePlayer from '../views/SinglePlayer.vue'
+import MultiPlayer from '../views/MultiPlayer.vue'
 
 Vue.use(VueRouter)
 
@@ -21,6 +22,11 @@ const routes: Array<RouteConfig> = [
     path: '/singleplayer',
     name: 'SinglePlayer',
     component: SinglePlayer
+  },
+  {
+    path: '/multiplayer',
+    name: 'MultiPlayer',
+    component: MultiPlayer
   },
   {
     path: '/about',

@@ -3,7 +3,9 @@
   <div>
     <v-dialog v-model="gameOver" width="500">
       <v-card>
-        <v-card-title class="headline grey lighten-2">All cards matched in {{totalTurns}} attems</v-card-title>
+        <v-card-title class="headline grey lighten-2"
+          >All cards matched in {{ totalTurns }} attems</v-card-title
+        >
         <v-divider></v-divider>
 
         <v-card-actions>
@@ -16,10 +18,12 @@
     </v-dialog>
     <v-container fluid>
       <div v-if="gameStarted">
-        <v-chip class="ma-2" color="warning" label>attempts {{totalTurns}}</v-chip>
+        <v-chip class="ma-2" color="warning" label
+          >attempts {{ totalTurns }}</v-chip
+        >
         <v-chip class="ma-2 float-right" color="success" label>
           <v-icon left>av_timer</v-icon>
-          {{timeToRender}}
+          {{ timeToRender }}
         </v-chip>
       </div>
       <v-row dense>
@@ -46,7 +50,7 @@
               v-if="!card.isFlipped || card.isMatched"
               :src="cardImage(card)"
               class="white--text align-end"
-              v-bind:class="{'match-overlay': card.isMatched}"
+              v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               height="200px"
             ></v-img>
@@ -71,7 +75,8 @@
       text
       sm
       @click="startGame()"
-    >Start Game</v-btn>
+      >Start Game</v-btn
+    >
     <div class="text-center pa-6">
       <v-progress-circular
         :rotate="360"
@@ -79,7 +84,8 @@
         :width="15"
         :value="progressValue"
         color="teal"
-      >{{ progressValue }}</v-progress-circular>
+        >{{ progressValue }}</v-progress-circular
+      >
     </div>
   </div>
 </template>
@@ -107,20 +113,20 @@ export default class SinglePlayer extends Vue {
   seconds = 0;
   timeToRender = "00:00";
   progressValue = 0;
-  public cardOriginal: Card = {
+  public cardOriginal: Card | undefined = {
     id: 0,
     pairCardId: 0,
     isMatched: false,
     isFlipped: false,
-    avatar: ""
+    avatar: "",
   };
 
-  public cardPair: Card = {
+  public cardPair: Card | undefined = {
     id: 0,
     pairCardId: 0,
     isMatched: false,
     isFlipped: false,
-    avatar: ""
+    avatar: "",
   };
 
   toggleCard(card: any) {
@@ -128,15 +134,13 @@ export default class SinglePlayer extends Vue {
 
     if (this.count < 2) {
       card.isFlipped = !card.isFlipped;
-      this.cardOriginal = this.cards.find(e => e.id === card.id);
-      this.cardOriginal.isFlipped = false;
-      console.log("flipped first card");
-      console.log(this.cardOriginal);
+      this.cardOriginal = this.cards.find((e) => e.id === card.id);
+      this.cardOriginal!.isFlipped = false;
     } else if (this.count == 2) {
       console.log("flipped second card");
       card.isFlipped = !card.isFlipped;
 
-      this.cardPair = this.cards.find(e => e.id === card.id);
+      this.cardPair = this.cards.find((e) => e.id === card.id);
       if (this.cardPair && this.cardOriginal) {
         this.cardPair.isFlipped = false;
         console.log(this.cardPair);
@@ -155,7 +159,7 @@ export default class SinglePlayer extends Vue {
         setTimeout(() => {
           this.count = 0;
           this.totalTurns++;
-          this.cards.forEach(card => (card.isFlipped = true));
+          this.cards.forEach((card) => (card.isFlipped = true));
           this.findWinner();
         }, 1000);
       }
@@ -163,7 +167,7 @@ export default class SinglePlayer extends Vue {
   }
 
   findWinner() {
-    const card = this.cards.find(card => !card.isMatched);
+    const card = this.cards.find((card) => !card.isMatched);
     console.log(!!card);
     this.gameOver = !card;
     if (this.gameOver) {
@@ -189,7 +193,7 @@ export default class SinglePlayer extends Vue {
             i <= 7
               ? "img_" + (i + 1) + ".jpeg"
               : "img_" + (totalCardCount - i) + ".jpeg",
-          flex: 3
+          flex: 3,
         };
         this.cards.push(card);
       } else {
@@ -199,13 +203,13 @@ export default class SinglePlayer extends Vue {
           isMatched: false,
           isFlipped: false,
           avatar: i <= 7 ? this.images[i] : this.images[totalCardCount - i - 1],
-          flex: 3
+          flex: 3,
         };
         this.cards.push(card);
       }
     }
     console.log(this.cards);
-    //this.shuffle();
+    this.shuffle();
   }
   shuffle() {
     for (let i = this.cards.length - 1; i > 0; i--) {
@@ -230,7 +234,7 @@ export default class SinglePlayer extends Vue {
   }
 
   startGame() {
-    this.cards.forEach(card => {
+    this.cards.forEach((card) => {
       card.isFlipped = true;
     });
     this.gameStarted = true;

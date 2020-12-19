@@ -16,6 +16,7 @@ export enum CardCategory {
 export interface User {
     id: string;
     name: string;
+    score: number;
 }
 
 export enum Player {
@@ -27,6 +28,7 @@ export interface Board {
     id: string;
     hostUser: User;
     guestUser?: User;
-    currentTurn: Player;
+    currentTurn: String;
     winner?: Player;
+    boardItems: [];
 }

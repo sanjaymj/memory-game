@@ -2,9 +2,10 @@
 <template>
   <div>
     <v-dialog v-model="gameOver" width="500">
+      <p>{{ count }}</p>
       <v-card>
         <v-card-title class="headline grey lighten-2"
-          >All cards matched in {{ totalTurns }} attems</v-card-title
+          >Winner is {{ winner }}</v-card-title
         >
         <v-divider></v-divider>
 
@@ -19,12 +20,8 @@
     <v-container fluid>
       <div v-if="gameStarted">
         <v-chip class="ma-2" color="warning" label
-          >attempts {{ totalTurns }}</v-chip
+          >attempts {{ currentTurn }}</v-chip
         >
-        <v-chip class="ma-2 float-right" color="success" label>
-          <v-icon left>av_timer</v-icon>
-          {{ timeToRender }}
-        </v-chip>
       </div>
       <v-row dense>
         <v-col v-for="card in cards" :key="card.id" :cols="card.flex">
@@ -77,20 +74,23 @@
       @click="startGame()"
       >Start Game</v-btn
     >
-    <div class="text-center pa-6">
-      <v-progress-circular
-        :rotate="360"
-        :size="200"
-        :width="15"
-        :value="progressValue"
-        color="teal"
-        >{{ progressValue }}</v-progress-circular
-      >
+    <div class="pa-10">
+      <v-progress-linear v-model="guestScore" color="amber" height="25">
+        <template>
+          <strong>{{ gameGuest["name"] }}</strong>
+        </template>
+      </v-progress-linear>
+      <br />
+      <v-progress-linear v-model="hostScore" color="green" height="25">
+        <template>
+          <strong>{{ gameHost["name"] }}</strong>
+        </template>
+      </v-progress-linear>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import { Card } from "../models";
 import { State } from "vuex-class";
 import store from "../store";
@@ -100,6 +100,12 @@ export default class MultiPlayer extends Vue {
   @State stored!: boolean;
   @State images!: Array<string>;
   @State defaultImages!: boolean;
+  @State boardContent!: any;
+  @State user!: any;
+  @State gameGuest!: any;
+  @State gameHost!: any;
+  @State currentTurn!: any;
+  @State boardId!: any;
   public cards: Card[] = [];
   public count = 0;
   flippedSource = "https://cdn.vuetifyjs.com/images/cards/plane.jpg";
@@ -108,13 +114,14 @@ export default class MultiPlayer extends Vue {
   public totalTurns = 0;
   public gameOver = false;
 
+  public matched = false;
+
+  guestScore = 0;
+  hostScore = 0;
   myInterval: any;
-  hours = 0;
-  minutes = 0;
-  seconds = 0;
-  timeToRender = "00:00";
+  winner = "";
   progressValue = 0;
-  public cardOriginal: Card = {
+  public cardOriginal: Card | undefined = {
     id: 0,
     pairCardId: 0,
     isMatched: false,
@@ -122,7 +129,7 @@ export default class MultiPlayer extends Vue {
     avatar: "",
   };
 
-  public cardPair: Card = {
+  public cardPair: Card | undefined = {
     id: 0,
     pairCardId: 0,
     isMatched: false,
@@ -131,88 +138,132 @@ export default class MultiPlayer extends Vue {
   };
 
   toggleCard(card: any) {
-    this.count++;
+    if (this.currentTurn == this.user["name"]) {
+      //if (true) {
+      this.count++;
+      console.log(this.gameGuest);
+      console.log(this.gameHost);
+      if (this.count < 2) {
+        card.isFlipped = !card.isFlipped;
 
-    if (this.count < 2) {
-      card.isFlipped = !card.isFlipped;
-      this.cardOriginal = this.cards.find((e) => e.id === card.id);
-      this.cardOriginal.isFlipped = false;
-      console.log("flipped first card");
-      console.log(this.cardOriginal);
-    } else if (this.count == 2) {
-      console.log("flipped second card");
-      card.isFlipped = !card.isFlipped;
+        new FirebaseDataHandler().updateCards(this.cards, this.boardId);
+        this.cardOriginal = this.cards.find((e) => e.id === card.id);
+        this.cardOriginal!.isFlipped = false;
+      } else if (this.count == 2) {
+        card.isFlipped = !card.isFlipped;
+        new FirebaseDataHandler().updateCards(this.cards, this.boardId);
+        //new FirebaseDataHandler().updateCards(this.cards);
+        this.cardPair = this.cards.find((e) => e.id === card.id);
+        if (this.cardPair && this.cardOriginal) {
+          this.cardPair.isFlipped = false;
 
-      this.cardPair = this.cards.find((e) => e.id === card.id);
-      if (this.cardPair && this.cardOriginal) {
-        this.cardPair.isFlipped = false;
-        console.log(this.cardPair);
-        if (
-          this.cardPair.id === this.cardOriginal.pairCardId &&
-          this.cardOriginal.isFlipped === this.cardPair.isFlipped
-        ) {
-          console.log("here");
-          this.cardPair.isMatched = true;
-          this.cardOriginal.isMatched = true;
-          this.matchedCardCount++;
-          this.progressValue = (this.matchedCardCount / 16) * 200;
-          card.isMatched = true;
+          if (
+            this.cardPair.id === this.cardOriginal.pairCardId &&
+            this.cardOriginal.isFlipped === this.cardPair.isFlipped
+          ) {
+            this.cardPair.isMatched = true;
+            this.cardOriginal.isMatched = true;
+            console.log("matching");
+            this.matched = true;
+            this.matchedCardCount++;
+            this.progressValue = (this.matchedCardCount / 16) * 200;
+            card.isMatched = true;
+            this.cards.forEach((e) => {
+              if (e.id == card.pairCardId) {
+                e.isMatched = true;
+              }
+            });
+            new FirebaseDataHandler().updateCards(this.cards, this.boardId);
+
+            if (this.gameHost["name"] == this.currentTurn) {
+              this.gameHost["score"] = this.gameHost["score"] + 1;
+
+              new FirebaseDataHandler().updateScore(
+                "hostUser",
+                this.gameHost,
+                this.boardId
+              );
+            } else {
+              this.gameGuest["score"] = this.gameGuest["score"] + 1;
+
+              new FirebaseDataHandler().updateScore(
+                "guestUser",
+                this.gameGuest,
+                this.boardId
+              );
+            }
+          }
+
+          setTimeout(() => {
+            this.count = 0;
+            this.totalTurns++;
+            this.cards.forEach((card) => (card.isFlipped = true));
+            new FirebaseDataHandler().updateCards(this.cards, this.boardId);
+            console.log("here");
+            console.log(this.matched);
+            if (!this.matched) {
+              if (this.gameHost["name"] == this.currentTurn) {
+                new FirebaseDataHandler().updateUser(
+                  this.gameGuest["name"],
+                  this.boardId
+                );
+              } else {
+                new FirebaseDataHandler().updateUser(
+                  this.gameHost["name"],
+                  this.boardId
+                );
+              }
+            }
+            this.matched = false;
+            this.findWinner();
+          }, 1000);
         }
-
-        setTimeout(() => {
-          this.count = 0;
-          this.totalTurns++;
-          this.cards.forEach((card) => (card.isFlipped = true));
-          this.findWinner();
-        }, 1000);
       }
     }
   }
 
   findWinner() {
     const card = this.cards.find((card) => !card.isMatched);
-    console.log(!!card);
     this.gameOver = !card;
     if (this.gameOver) {
+      if (this.guestScore < this.hostScore) {
+        this.winner = this.gameHost["name"];
+      } else {
+        this.winner = this.gameGuest["name"];
+      }
       clearInterval(this.myInterval);
     }
   }
   created() {
     this.createBoard();
+    new FirebaseDataHandler().getBoardContent(this.boardId);
+  }
+
+  @Watch("$store.state.boardContent")
+  onValueChanged() {
+    this.cards = this.boardContent;
+  }
+
+  @Watch("$store.state.gameHost")
+  onValueChanged1() {
+    this.hostScore = (this.gameHost["score"] / 16) * 200;
+  }
+
+  @Watch("$store.state.currentTurn")
+  onValueChanged3() {
+    console.log("!!!changed");
+    console.log(this.currentTurn);
+  }
+
+  @Watch("$store.state.gameGuest")
+  onValueChanged2() {
+    this.guestScore = (this.gameGuest["score"] / 16) * 200;
   }
 
   createBoard() {
-    const totalCardCount = 16;
-    this.cards = [];
-    for (let i = 0; i < totalCardCount; i++) {
-      if (this.defaultImages) {
-        console.log("here");
-        const card: Card = {
-          id: i,
-          pairCardId: totalCardCount - i - 1,
-          isMatched: false,
-          isFlipped: false,
-          avatar:
-            i <= 7
-              ? "img_" + (i + 1) + ".jpeg"
-              : "img_" + (totalCardCount - i) + ".jpeg",
-          flex: 3,
-        };
-        this.cards.push(card);
-      } else {
-        const card: Card = {
-          id: i,
-          pairCardId: totalCardCount - i - 1,
-          isMatched: false,
-          isFlipped: false,
-          avatar: i <= 7 ? this.images[i] : this.images[totalCardCount - i - 1],
-          flex: 3,
-        };
-        this.cards.push(card);
-      }
-    }
-    console.log(this.cards);
-    //new FirebaseDataHandler().updateCards(this.cards);
+    this.cards = this.boardContent;
+    this.shuffle();
+    new FirebaseDataHandler().updateCards(this.cards, this.boardId);
     //this.shuffle();
   }
   shuffle() {
@@ -220,15 +271,11 @@ export default class MultiPlayer extends Vue {
       const j = Math.floor(Math.random() * (i + 1));
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
     }
-    console.log(this.cards);
   }
 
   restartGame() {
     this.gameOver = false;
     this.totalTurns = 0;
-    this.minutes = 0;
-    this.seconds = 0;
-    this.timeToRender = "00:00";
     this.createBoard();
     this.startGame();
   }
@@ -242,16 +289,6 @@ export default class MultiPlayer extends Vue {
       card.isFlipped = true;
     });
     this.gameStarted = true;
-    this.myInterval = setInterval(() => {
-      if (this.seconds == 59) {
-        this.seconds = 0;
-        this.minutes = this.minutes + 1;
-      } else {
-        this.seconds = this.seconds + 1;
-      }
-      this.timeToRender =
-        ("0" + this.minutes).slice(-2) + ":" + ("0" + this.seconds).slice(-2);
-    }, 1000);
   }
 
   cardImage(card: Card) {

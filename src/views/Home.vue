@@ -4,6 +4,7 @@
       v-bind:dialog="modal"
       @clicked="test($event)"
     ></JoinExistingBoardAlert>
+    <NewBoardCreatedAlert />
     <v-card max-width="400" class="mx-auto">
       <v-container>
         <v-row dense>
@@ -106,8 +107,9 @@ import JoinExistingBoardAlert from "../components/JoinExistingBoardAlert.vue";
   components: { NewBoardCreatedAlert, JoinExistingBoardAlert },
 })
 export default class SignUp extends Vue {
-  @State currentUser!: User;
+  @State user!: User;
   @State joinMultiPlayerBoardAsGuest!: boolean;
+  @State boardContent;
   drawer = false;
   modal = false;
   items = [
@@ -120,10 +122,10 @@ export default class SignUp extends Vue {
       title: "Multi player",
     },
   ];
-  images = [];
+  images: any = [];
 
   selectFile() {
-    const fileInputElement = this.$refs.file;
+    const fileInputElement: any = this.$refs.file;
     fileInputElement.click();
   }
 
@@ -132,23 +134,20 @@ export default class SignUp extends Vue {
   }
 
   createMultiPlayerBoard() {
-    console.log("creating game");
-    new FirebaseDataHandler().createMultiPlayerBoard(this.currentUser);
-    this.$router.push("/multiplayer");
+    new FirebaseDataHandler().createMultiPlayerBoard(
+      this.user,
+      this.boardContent
+    );
+    //this.$router.push("/multiplayer");
   }
 
   joinMultiPlayerBoard() {
     this.modal = !this.modal;
-    console.log("joining game");
-    //new FirebaseDataHandler().joinBoard("6403", this.currentUser);
     store.commit("updateGuestStatus", true);
-    //store.commit("joinMultiPlayerBoardAsGuest", false);
-    //this.$router.push("/multiplayer");
   }
 
   test(val: string) {
-    console.log(val);
-    new FirebaseDataHandler().joinBoard(8796, this.currentUser);
+    new FirebaseDataHandler().joinBoard(val, this.user);
     this.$router.push("/multiplayer");
     this.modal = false;
   }
@@ -175,7 +174,7 @@ export default class SignUp extends Vue {
     for (let index = 0; index < files.length; index++) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const imageUrl = event.target.result;
+        const imageUrl = event.target!.result;
         this.images.push(imageUrl);
 
         const payload = {

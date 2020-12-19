@@ -1,21 +1,25 @@
 <template>
   <div>
     <div id="flashcard-app" class="container">
-      <h1 v-if="isPlayerOneChance">{{playerOneChanceString}}</h1>
-      <h1 v-if="!isPlayerOneChance">{{playerTwoChanceString}}</h1>
+      <h1 v-if="isPlayerOneChance">{{ playerOneChanceString }}</h1>
+      <h1 v-if="!isPlayerOneChance">{{ playerTwoChanceString }}</h1>
       <ul>
         <li v-on:click="toggleCard(card)" v-for="card in cards" :key="card.id">
           <transition name="flip">
             <p v-bind:key="!card.isFlipped" class="card">
-              <img class="image" v-if="!card.isFlipped || card.isMatched" v-bind:src="card.avatar" />
+              <img
+                class="image"
+                v-if="!card.isFlipped || card.isMatched"
+                v-bind:src="card.avatar"
+              />
             </p>
           </transition>
         </li>
       </ul>
       <div>
-        <h1>Player one score {{playerOneScore}}</h1>
-        <h1>Player two score {{playerTwoScore}}</h1>
-        <h1 v-if="gameOver">{{winner}} wins!!!!!</h1>
+        <h1>Player one score {{ playerOneScore }}</h1>
+        <h1>Player two score {{ playerTwoScore }}</h1>
+        <h1 v-if="gameOver">{{ winner }} wins!!!!!</h1>
       </div>
     </div>
   </div>
@@ -41,20 +45,20 @@ export default class SinglePlayer extends Vue {
   @State images!: Array<string>;
   public cards: Card[] = [];
 
-  public cardOriginal: Card = {
+  public cardOriginal: Card | undefined = {
     id: 0,
     pairCardId: 0,
     isMatched: false,
     isFlipped: false,
-    avatar: ""
+    avatar: "",
   };
 
-  public cardPair: Card = {
+  public cardPair: Card | undefined = {
     id: 0,
     pairCardId: 0,
     isMatched: false,
     isFlipped: false,
-    avatar: ""
+    avatar: "",
   };
 
   created() {
@@ -65,7 +69,7 @@ export default class SinglePlayer extends Vue {
         pairCardId: totalCardCount - i - 1,
         isMatched: false,
         isFlipped: true,
-        avatar: i <= 7 ? this.images[i] : this.images[totalCardCount - i - 1]
+        avatar: i <= 7 ? this.images[i] : this.images[totalCardCount - i - 1],
       };
       this.cards.push(card);
     }
@@ -78,8 +82,8 @@ export default class SinglePlayer extends Vue {
 
     if (this.count < 2) {
       card.isFlipped = !card.isFlipped;
-      this.cardOriginal = this.cards.find(e => e.id === card.id);
-      this.cardOriginal.isFlipped = false;
+      this.cardOriginal = this.cards.find((e) => e.id === card.id);
+      this.cardOriginal!.isFlipped = false;
       console.log("flipped first card");
       console.log(this.cardOriginal);
     } else {
@@ -87,7 +91,7 @@ export default class SinglePlayer extends Vue {
       console.log("flipped second card");
       card.isFlipped = !card.isFlipped;
 
-      this.cardPair = this.cards.find(e => e.id === card.id);
+      this.cardPair = this.cards.find((e) => e.id === card.id);
       if (this.cardPair && this.cardOriginal) {
         this.cardPair.isFlipped = false;
         console.log(this.cardPair);
@@ -111,7 +115,7 @@ export default class SinglePlayer extends Vue {
       }
 
       setTimeout(() => {
-        this.cards.forEach(card => (card.isFlipped = true));
+        this.cards.forEach((card) => (card.isFlipped = true));
         this.findWinner();
         if (!this.repeatTurn) {
           this.isPlayerOneChance = !this.isPlayerOneChance;
@@ -121,7 +125,7 @@ export default class SinglePlayer extends Vue {
   }
 
   findWinner() {
-    const card = this.cards.find(card => !card.isMatched);
+    const card = this.cards.find((card) => !card.isMatched);
     console.log("!!!");
     console.log(card);
     if (card) {

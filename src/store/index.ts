@@ -1,12 +1,39 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { User } from '../models';
+import { Card, User } from '../models';
 Vue.use(Vuex)
 
 const currentuser: User = {
   id: '',
-  name: ''
+  name: '',
+  score: 0,
 };
+
+function createBoard() {
+  const totalCardCount = 16;
+  const cards: any = [];
+  for (let i = 0; i < totalCardCount; i++) {
+
+    console.log("here");
+    const card: Card = {
+      id: i,
+      pairCardId: totalCardCount - i - 1,
+      isMatched: false,
+      isFlipped: false,
+      avatar:
+        i <= 7
+          ? "img_" + (i + 1) + ".jpeg"
+          : "img_" + (totalCardCount - i) + ".jpeg",
+      flex: 3,
+    };
+    cards.push(card);
+
+  }
+  console.log(cards);
+  return cards;
+  //new FirebaseDataHandler().updateCards(this.cards);
+  //this.shuffle();
+}
 
 const state = {
   images: [],
@@ -16,7 +43,11 @@ const state = {
   user: currentuser,
   multiPlayerBoardCreated: false,
   joinMultiPlayerBoardAsGuest: false,
-  boardId: '2134'
+  boardId: '9164',
+  boardContent: createBoard(),
+  gameHost: currentuser,
+  gameGuest: currentuser,
+  currentTurn: ''
 };
 
 const mutations = {
@@ -34,7 +65,7 @@ const mutations = {
   },
 
   updateCurrentUser(state: any, payload: User) {
-    state.currentUser = payload;
+    state.user = payload;
   },
 
   updateMultiPlayerBoardCreationState(state: any, payload: string) {
@@ -44,10 +75,30 @@ const mutations = {
 
   updateGuestStatus(state: any, payload: boolean) {
     state.joinMultiPlayerBoardAsGuest = payload;
-  }
+  },
+
+  updateBoardContent(state: any, payload: any) {
+    console.log("updating content");
+    state.boardContent = payload;
+  },
+
+  updateGuestUser(state: any, payload: boolean) {
+    state.gameGuest = payload;
+  },
+
+  updateHostUser(state: any, payload: boolean) {
+    state.gameHost = payload;
+  },
+
+  updateCurrentTurn(state: any, payload: boolean) {
+    state.currentTurn = payload;
+  },
 }
 
 export default new Vuex.Store({
   state,
   mutations
 });
+
+
+

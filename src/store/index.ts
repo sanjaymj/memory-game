@@ -9,7 +9,7 @@ const currentuser: User = {
   score: 0,
 };
 
-function createBoard() {
+function createBoard(category: string) {
   const totalCardCount = 16;
   const cards: any = [];
   for (let i = 0; i < totalCardCount; i++) {
@@ -22,8 +22,8 @@ function createBoard() {
       isFlipped: false,
       avatar:
         i <= 7
-          ? "img_" + (i + 1) + ".jpeg"
-          : "img_" + (totalCardCount - i) + ".jpeg",
+          ? category + "/img_" + (i + 1) + ".jpeg"
+          : category + "/img_" + (totalCardCount - i) + ".jpeg",
       flex: 3,
     };
     cards.push(card);
@@ -39,12 +39,13 @@ const state = {
   images: [],
   stored: true,
   hideNavbar: false,
-  defaultImages: true,
+  defaultImages: false,
+  imageCategory: '',
   user: currentuser,
   multiPlayerBoardCreated: false,
   joinMultiPlayerBoardAsGuest: false,
-  boardId: '9164',
-  boardContent: createBoard(),
+  boardId: '9956',
+  boardContent: createBoard("huccha"),
   gameHost: currentuser,
   gameGuest: currentuser,
   currentTurn: ''
@@ -75,6 +76,14 @@ const mutations = {
 
   updateGuestStatus(state: any, payload: boolean) {
     state.joinMultiPlayerBoardAsGuest = payload;
+  },
+
+  updateImageCategory(state: any, payload: boolean) {
+    state.imageCategory = payload;
+  },
+
+  setBoardContent(state: any, payload: any) {
+    state.boardContent = createBoard(payload);
   },
 
   updateBoardContent(state: any, payload: any) {

@@ -22,11 +22,12 @@
             depressed
             elevation="2"
             rounded
-            color="primary"
-            text
+            color="success"
             sm
+            :disabled="!valid"
             @click="onButtonClick()"
-          >Start</v-btn>
+            >Start</v-btn
+          >
         </v-col>
       </v-row>
     </v-form>
@@ -43,8 +44,8 @@ export default class SignUp extends Vue {
   valid = true;
   firstname = "";
   nameRules = [
-    v => !!v || "Name is required",
-    v => v.length <= 10 || "Name must be less than 10 characters"
+    (v) => !!v || "Name is required",
+    (v) => v.length <= 10 || "Name must be less than 10 characters",
   ];
   onButtonClick() {
     new FirebaseDataHandler().signInAnonymously(this.firstname);
@@ -53,27 +54,7 @@ export default class SignUp extends Vue {
   }
 
   created() {
-    this.testUrlValidation();
     store.commit("setNavbarState", true);
-  }
-
-  testUrlValidation() {
-    console.log("checking rules ###");
-    const validUrl1 = "google.de/test/?q=1";
-    const inValidUrl1 = "google.de/test?q=1";
-
-    const validUrl2 = "google.de/test.html?q=1";
-    const inValidUrl2 = "google.de/test.html/?q=1";
-
-    const url = validUrl1;
-
-    if (url.match("(.html//?)")) {
-      console.log("invalid");
-    } else if (!url.match("(.html/?)")) {
-      console.log("invalid");
-    } else {
-      console.log("valid");
-    }
   }
 }
 </script>

@@ -18,6 +18,8 @@ export class FirebaseDataHandler {
             .set(newBoard)
             .then(val => {
                 store.commit('updateMultiPlayerBoardCreationState', boardId);
+                store.commit("setDefaultMode", true);
+
                 this.getBoardContent(boardId);
             }
             );
@@ -44,11 +46,12 @@ export class FirebaseDataHandler {
     }
 
     public joinBoard(boardId, guest: User) {
-        console.log('empty');
+        console.log(boardId);
         db.collection("locations")
             .doc(boardId.toString())
             .update({ guestUser: guest })
             .then(val => {
+                console.log("here1!!!!!!!!!");
                 store.commit('updateMultiPlayerBoardCreationState', boardId);
                 this.getBoardContent(boardId);
             }
@@ -73,7 +76,7 @@ export class FirebaseDataHandler {
     }
 
     public getBoardContent(boardId) {
-
+        console.log("getting board content ", boardId);
         db.collection("locations").doc(boardId.toString()).onSnapshot((val) => {
 
             if (val.data()!["boardItems"] != undefined) {
@@ -88,7 +91,6 @@ export class FirebaseDataHandler {
             if (val.data()!["currentTurn"] != undefined) {
                 store.commit("updateCurrentTurn", val.data()!["currentTurn"]);
             }
-
         });
     }
 

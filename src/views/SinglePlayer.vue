@@ -3,16 +3,23 @@
   <div>
     <v-dialog v-model="gameOver" width="500">
       <v-card>
-        <v-card-title class="headline grey lighten-2"
-          >All cards matched in {{ totalTurns }} attems</v-card-title
-        >
-        <v-divider></v-divider>
+        <v-card-title class="headline">
+          All cards successfully matched !!
+        </v-card-title>
+
+        <v-card-text>
+          You matched all cards in {{ totalTurns }} attemps. Do you want to try
+          again?
+        </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="success" text @click="restartGame()">Try again</v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="goBack()">Exit</v-btn>
+
+          <v-btn color="green darken-1" text @click="restartGame()">
+            Try Again
+          </v-btn>
+
+          <v-btn color="red darken-1" text @click="goBack()"> Go BAck </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -72,7 +79,6 @@
       elevation="2"
       rounded
       color="success"
-      text
       sm
       @click="startGame()"
       >Start Game</v-btn
@@ -99,6 +105,7 @@ export default class SinglePlayer extends Vue {
   @State stored!: boolean;
   @State images!: Array<string>;
   @State defaultImages!: boolean;
+  @State imageCategory!: string;
   public cards: Card[] = [];
   public count = 0;
   flippedSource = "https://cdn.vuetifyjs.com/images/cards/plane.jpg";
@@ -179,6 +186,7 @@ export default class SinglePlayer extends Vue {
   }
 
   createBoard() {
+    console.log("defau is " + this.defaultImages);
     const totalCardCount = 16;
     this.cards = [];
     for (let i = 0; i < totalCardCount; i++) {
@@ -191,8 +199,8 @@ export default class SinglePlayer extends Vue {
           isFlipped: false,
           avatar:
             i <= 7
-              ? "img_" + (i + 1) + ".jpeg"
-              : "img_" + (totalCardCount - i) + ".jpeg",
+              ? this.imageCategory + "/img_" + (i + 1) + ".jpeg"
+              : this.imageCategory + "/img_" + (totalCardCount - i) + ".jpeg",
           flex: 3,
         };
         this.cards.push(card);
@@ -221,6 +229,8 @@ export default class SinglePlayer extends Vue {
 
   restartGame() {
     this.gameOver = false;
+    this.matchedCardCount = 0;
+    this.progressValue = 0;
     this.totalTurns = 0;
     this.minutes = 0;
     this.seconds = 0;

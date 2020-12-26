@@ -50,7 +50,7 @@
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-icon>
 
-            <v-list-item-content @click="test(item.route)">
+            <v-list-item-content @click="goTo(item.route)">
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -74,19 +74,17 @@ export default class SignUp extends Vue {
 
   items = [
     { title: "Home", icon: "mdi-view-dashboard", route: "home" },
-    { title: "About", icon: "mdi-information", route: "about" },
+    // { title: "About", icon: "mdi-information", route: "about" },
   ];
 
-  goBack() {
-    this.$router.back();
-  }
-
   onSignOutClick() {
+    store.commit("updateMultiPlayerBoardCreationState", false);
     this.$router.push("/");
   }
 
-  test(route) {
+  goTo(route) {
     this.drawer = false;
+    store.commit("updateMultiPlayerBoardCreationState", false);
     this.$router.push("/" + route);
   }
 }

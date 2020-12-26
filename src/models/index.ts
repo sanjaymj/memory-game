@@ -28,7 +28,14 @@ export interface Board {
     id: string;
     hostUser: User;
     guestUser?: User;
-    currentTurn: String;
+    currentTurn: string;
     winner?: Player;
     boardItems: [];
+    defaultCategory: boolean;
+}
+
+export enum GameMode {
+    NONE,
+    SINGLEPLAYER,
+    MULTIPLAYER
 }

@@ -4,25 +4,33 @@ import { User, Board, Player } from '@/models';
 import store from '@/store';
 
 export class FirebaseDataHandler {
-    public createMultiPlayerBoard(user: User, boardContent) {
+    public createMultiPlayerBoard(user: User, boardContent, imageCat: boolean) {
+        console.log("in here");
         const boardId = Math.floor(1000 + Math.random() * 9000).toString();
-        const newBoard: Board = {
+        const newBoard = {
             id: boardId,
             hostUser: user,
             currentTurn: user.name,
-            boardItems: boardContent
+            boardItems: boardContent,
+            defaultCategory: imageCat
         };
         console.dir(newBoard);
+
+
         db.collection("locations")
             .doc(boardId)
             .set(newBoard)
             .then(val => {
+
                 store.commit('updateMultiPlayerBoardCreationState', boardId);
-                store.commit("setDefaultMode", true);
+                store.commit('updateMultiPlayerBoardId', boardId);
+                store.commit("setDefaultMode", imageCat);
 
                 this.getBoardContent(boardId);
             }
-            );
+            ).catch(val => {
+                alert("Failed to create new board");
+            });
     }
 
     public updateCards(cards, boardId) {
@@ -53,6 +61,8 @@ export class FirebaseDataHandler {
             .then(val => {
                 console.log("here1!!!!!!!!!");
                 store.commit('updateMultiPlayerBoardCreationState', boardId);
+                store.commit('updateMultiPlayerBoardId', boardId);
+
                 this.getBoardContent(boardId);
             }
             );
@@ -72,6 +82,8 @@ export class FirebaseDataHandler {
                 };
                 console.log(createdUser);
                 store.commit("updateCurrentUser", createdUser);
+                localStorage.setItem('mem-user', JSON.stringify(createdUser))
+
             });
     }
 
@@ -90,6 +102,10 @@ export class FirebaseDataHandler {
             }
             if (val.data()!["currentTurn"] != undefined) {
                 store.commit("updateCurrentTurn", val.data()!["currentTurn"]);
+            }
+
+            if (val.data()!["defaultCategory"] != undefined) {
+                store.commit("setDefaultMode", val.data()!["defaultCategory"]);
             }
         });
     }

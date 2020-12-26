@@ -299,24 +299,9 @@ export default class MultiPlayer extends Vue {
 </script>
 
 <style scoped>
-.flip-enter-active {
-  transition: all 0.4s ease;
-}
-
-.flip-leave-active {
-  display: none;
-}
-
-.flip-enter,
-.flip-leave {
-  transform: rotateY(180deg);
-  opacity: 0;
-}
-
 .match-overlay {
   transition-delay: 0.75s;
   opacity: 0.7;
-  background-image: url("../assets/check-solid.svg");
   background-repeat: no-repeat;
   background-position: center;
   border: 5px solid black;
@@ -324,7 +309,6 @@ export default class MultiPlayer extends Vue {
 
 .match-overlay {
   opacity: 0.5;
-  background-image: url("../assets/check-solid.svg");
   background-repeat: no-repeat;
   background-position: center;
 }

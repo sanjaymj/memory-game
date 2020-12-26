@@ -1,10 +1,12 @@
 
 <template>
   <div>
-    <v-dialog v-model="gameOver" width="500">
-      <v-card>
-        <v-card-title class="headline">
-          All cards successfully matched !!
+    <v-dialog v-model="gameOver" max-width="600px">
+      <v-card :color="'#fff'">
+        <v-card-title
+          class="headline"
+          v-text="'All cards successfully matched !!'"
+        >
         </v-card-title>
 
         <v-card-text>
@@ -15,11 +17,11 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn color="green darken-1" text @click="restartGame()">
+          <v-btn color="green darken-1" @click="restartGame()">
             Try Again
           </v-btn>
 
-          <v-btn color="red darken-1" text @click="goBack()"> Go BAck </v-btn>
+          <v-btn color="red darken-1" @click="goBack()"> Go BAck </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -39,16 +41,17 @@
             <v-img
               v-if="!card.isFlipped || card.isMatched"
               :src="card.avatar"
-              class="white--text align-end match-overlay"
+              class="white--text align-end"
+              v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="10rem"
             ></v-img>
             <v-img
               v-else
               :src="flippedSource"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="10rem"
             ></v-img>
           </v-card>
 
@@ -59,20 +62,21 @@
               class="white--text align-end"
               v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="10rem"
             ></v-img>
             <v-img
               v-else
               :src="flippedSource"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="10rem"
             ></v-img>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <v-btn
+      v-if="!gameStarted"
       class="pa-10"
       block
       depressed
@@ -103,7 +107,7 @@ import store from "../store";
 @Component({})
 export default class SinglePlayer extends Vue {
   @State stored!: boolean;
-  @State images!: Array<string>;
+  @State images;
   @State defaultImages!: boolean;
   @State imageCategory!: string;
   public cards: Card[] = [];
@@ -113,6 +117,7 @@ export default class SinglePlayer extends Vue {
   matchedCardCount = 0;
   public totalTurns = 0;
   public gameOver = false;
+  private audioToPlay = "https://www.fesliyanstudios.com/play-mp3/3518";
 
   myInterval: any;
   hours = 0;
@@ -161,11 +166,16 @@ export default class SinglePlayer extends Vue {
           this.matchedCardCount++;
           this.progressValue = (this.matchedCardCount / 16) * 200;
           card.isMatched = true;
+          this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/5744";
+          new Audio(this.audioToPlay).play();
+        } else {
+          new Audio(this.audioToPlay).play();
         }
 
         setTimeout(() => {
           this.count = 0;
           this.totalTurns++;
+          this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/3518";
           this.cards.forEach((card) => (card.isFlipped = true));
           this.findWinner();
         }, 1000);
@@ -186,12 +196,10 @@ export default class SinglePlayer extends Vue {
   }
 
   createBoard() {
-    console.log("defau is " + this.defaultImages);
     const totalCardCount = 16;
     this.cards = [];
-    for (let i = 0; i < totalCardCount; i++) {
-      if (this.defaultImages) {
-        console.log("here");
+    if (this.defaultImages) {
+      for (let i = 0; i < totalCardCount; i++) {
         const card: Card = {
           id: i,
           pairCardId: totalCardCount - i - 1,
@@ -204,27 +212,19 @@ export default class SinglePlayer extends Vue {
           flex: 3,
         };
         this.cards.push(card);
-      } else {
-        const card: Card = {
-          id: i,
-          pairCardId: totalCardCount - i - 1,
-          isMatched: false,
-          isFlipped: false,
-          avatar: i <= 7 ? this.images[i] : this.images[totalCardCount - i - 1],
-          flex: 3,
-        };
-        this.cards.push(card);
       }
+    } else {
+      this.cards = this.images;
     }
-    console.log(this.cards);
+
     this.shuffle();
   }
+
   shuffle() {
     for (let i = this.cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
     }
-    console.log(this.cards);
   }
 
   restartGame() {
@@ -246,6 +246,7 @@ export default class SinglePlayer extends Vue {
   startGame() {
     this.cards.forEach((card) => {
       card.isFlipped = true;
+      card.isMatched = false;
     });
     this.gameStarted = true;
     this.myInterval = setInterval(() => {
@@ -258,11 +259,25 @@ export default class SinglePlayer extends Vue {
       this.timeToRender =
         ("0" + this.minutes).slice(-2) + ":" + ("0" + this.seconds).slice(-2);
     }, 1000);
+    this.shuffle();
   }
 
   cardImage(card: Card) {
     const fileName = card.avatar;
     return require(`./../assets/${fileName}`);
+  }
+
+  preventNav(event) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventNav);
+  }
+
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.preventNav);
   }
 }
 </script>

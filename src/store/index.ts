@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { Card, User } from '../models';
+import { Card, GameMode, User } from '../models';
 Vue.use(Vuex)
+const cachedUser = localStorage.getItem('mem-user');
 
 const currentuser: User = {
-  id: '',
-  name: '',
+  id: cachedUser !== null ? JSON.parse(cachedUser)["id"] : '',
+  name: cachedUser !== null ? JSON.parse(cachedUser)["name"] : '',
   score: 0,
 };
 
@@ -29,7 +30,6 @@ function createBoard(category: string) {
     cards.push(card);
 
   }
-  console.log(cards);
   return cards;
   //new FirebaseDataHandler().updateCards(this.cards);
   //this.shuffle();
@@ -37,18 +37,20 @@ function createBoard(category: string) {
 
 const state = {
   images: [],
-  stored: true,
   hideNavbar: false,
   defaultImages: false,
   imageCategory: '',
   user: currentuser,
   multiPlayerBoardCreated: false,
   joinMultiPlayerBoardAsGuest: false,
+  joinMultiPlayerBoardAsHost: false,
   boardId: '9956',
   boardContent: createBoard("huccha"),
   gameHost: currentuser,
   gameGuest: currentuser,
-  currentTurn: ''
+  currentTurn: '',
+  showUploadImageDialog: false,
+  gameMode: GameMode.NONE
 };
 
 const mutations = {
@@ -69,13 +71,20 @@ const mutations = {
     state.user = payload;
   },
 
-  updateMultiPlayerBoardCreationState(state: any, payload: string) {
-    state.multiPlayerBoardCreated = true;
+  updateMultiPlayerBoardCreationState(state: any, payload: boolean) {
+    state.multiPlayerBoardCreated = payload;
+  },
+
+  updateMultiPlayerBoardId(state: any, payload: string) {
     state.boardId = payload;
   },
 
   updateGuestStatus(state: any, payload: boolean) {
     state.joinMultiPlayerBoardAsGuest = payload;
+  },
+
+  updateHostStatus(state: any, payload: boolean) {
+    state.joinMultiPlayerBoardAsHost = payload;
   },
 
   updateImageCategory(state: any, payload: boolean) {
@@ -102,6 +111,14 @@ const mutations = {
   updateCurrentTurn(state: any, payload: boolean) {
     state.currentTurn = payload;
   },
+
+  updateUploadImageDialog(state: any, payload: boolean) {
+    state.showUploadImageDialog = payload;
+  },
+
+  updateGameMode(state: any, payload: any) {
+    state.gameMode = payload;
+  }
 }
 
 export default new Vuex.Store({

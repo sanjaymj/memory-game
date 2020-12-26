@@ -1,5 +1,5 @@
 <template>
-  <div class="" v-if="multiPlayerBoardCreated">
+  <div v-if="multiPlayerBoardCreated">
     <!--  <v-card class="mx-auto" max-width="344" outlined loading elevation="20">
       <v-list-item :key="boardId" three-line>
         <v-list-item-content align="center">
@@ -15,8 +15,8 @@
     </v-card>
  -->
     <v-row justify="center">
-      <v-dialog v-model="dialog" persistent max-width="600px">
-        <v-card class="mx-auto" max-width="344" outlined loading elevation="20">
+      <v-dialog max-width="600px" :value="!updateHostStatus" persistent>
+        <v-card :color="'#fff'" class="mx-auto" outlined loading elevation="20">
           <v-list-item :key="boardId" three-line>
             <v-list-item-content align="center">
               <div class="overline mb-4">Created a new board</div>
@@ -52,13 +52,12 @@ export default class NewBoardCreatedAlert extends Vue {
   @State multiPlayerBoardCreated!: boolean;
   @State boardId!: string;
   @State gameGuest;
-  dialog = true;
+  @State updateHostStatus;
 
   @Watch("$store.state.gameGuest")
   onValueChanged() {
-    console.log("ma hehe e###");
-    console.log(this.gameGuest);
-    this.dialog = false;
+    store.commit("updateHostStatus", true);
+    store.commit("updateMultiPlayerBoardCreationState", false);
     this.$router.push("/multiplayer");
   }
 }

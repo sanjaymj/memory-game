@@ -1,41 +1,51 @@
 
 <template>
   <div>
-    <v-dialog v-model="gameOver" width="500">
-      <v-card>
-        <v-card-title class="headline grey lighten-2"
-          >Winner is {{ winner }}</v-card-title
-        >
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="success" text @click="restartGame()">Try again</v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="goBack()">Exit</v-btn>
-        </v-card-actions>
+    <v-dialog v-model="gameOver" max-width="600px">
+      <v-card :color="'#fff'">
+        <div class="d-flex-column justify-space-between">
+          <div>
+            <v-card-title class="headline">Winner is {{ winner }}</v-card-title>
+          </div>
+          <div>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="success" @click="restartGame()">Try again</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="error" @click="goBack()">Exit</v-btn>
+            </v-card-actions>
+          </div>
+        </div>
       </v-card>
     </v-dialog>
+
     <v-container fluid>
       <div v-if="gameStarted">
         <CurrentPlayerTurnLabel />
       </div>
+      <div v-else>
+        <p class="text-center Roboto px-4 pt-4 pb-3">
+          <span class="purple--text">Press startGame when you are ready</span>
+        </p>
+      </div>
+
       <v-row dense>
         <v-col v-for="card in cards" :key="card.id" :cols="card.flex">
           <v-card v-if="!defaultImages" @click="toggleCard(card)">
             <v-img
               v-if="!card.isFlipped || card.isMatched"
               :src="card.avatar"
-              class="white--text align-end match-overlay"
+              class="white--text align-end"
+              v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="8rem"
             ></v-img>
             <v-img
               v-else
               :src="flippedSource"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="8rem"
             ></v-img>
           </v-card>
 
@@ -46,27 +56,27 @@
               class="white--text align-end"
               v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="8rem"
             ></v-img>
             <v-img
               v-else
               :src="flippedSource"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
+              height="8rem"
             ></v-img>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <v-btn
+      v-if="!gameStarted"
       class="pa-10"
       block
       depressed
       elevation="2"
       rounded
       color="success"
-      text
       sm
       @click="startGame()"
       >Start Game</v-btn
@@ -110,6 +120,8 @@ export default class MultiPlayer extends Vue {
   public myInterval: any;
   public winner = "";
 
+  private audioToPlay = "https://www.fesliyanstudios.com/play-mp3/3518";
+
   created() {
     this.createBoard();
     new FirebaseDataHandler().getBoardContent(this.boardId);
@@ -117,11 +129,12 @@ export default class MultiPlayer extends Vue {
 
   createBoard() {
     this.cards = this.boardContent;
-    this.shuffle();
+    console.log(this.cards);
     new FirebaseDataHandler().updateCards(this.cards, this.boardId);
   }
 
   shuffle() {
+    console.log("in shuffle");
     for (let i = this.cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
@@ -151,11 +164,16 @@ export default class MultiPlayer extends Vue {
     new FirebaseDataHandler().updateCards(this.cards, this.boardId);
     if (this.matched) {
       this.updateUserScore();
+      this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/5744";
+      new Audio(this.audioToPlay).play();
+    } else {
+      new Audio(this.audioToPlay).play();
     }
 
     setTimeout(() => {
       this.flipOpenCardsWithoutPairs();
-    }, 1000);
+      this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/3518";
+    }, 3000);
   }
 
   isPairCardFlipped(card: Card) {
@@ -293,6 +311,8 @@ export default class MultiPlayer extends Vue {
   }
 
   goBack() {
+    store.commit("updateMultiPlayerBoardCreationState", false);
+
     this.$router.back();
   }
 
@@ -300,6 +320,8 @@ export default class MultiPlayer extends Vue {
     this.cards.forEach((card) => {
       card.isFlipped = true;
     });
+    this.shuffle();
+    new FirebaseDataHandler().updateCards(this.cards, this.boardId);
     this.gameStarted = true;
   }
 
@@ -307,8 +329,50 @@ export default class MultiPlayer extends Vue {
     const fileName = card.avatar;
     return require(`./../../assets/${fileName}`);
   }
+
+  preventNav(event) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventNav);
+  }
+
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.preventNav);
+  }
 }
 </script>
 
 <style scoped>
+.flip-enter-active {
+  transition: all 0.4s ease;
+}
+
+.flip-leave-active {
+  display: none;
+}
+
+.flip-enter,
+.flip-leave {
+  transform: rotateY(180deg);
+  opacity: 0;
+}
+
+.match-overlay {
+  transition-delay: 0.75s;
+  opacity: 0.7;
+  background-image: url("../../assets/check-solid.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 5px solid black;
+}
+
+.match-overlay {
+  opacity: 0.5;
+  background-image: url("../../assets/check-solid.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}
 </style>

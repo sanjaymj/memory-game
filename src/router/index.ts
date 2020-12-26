@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
+import GameSelection from '../views/home/GameSelection.vue'
 import SignUp from '../views/SignUp.vue'
 import SinglePlayer from '../views/SinglePlayer.vue'
 //import MultiPlayer from '../views/MultiPlayer.vue'
@@ -17,8 +18,13 @@ const routes: Array<RouteConfig> = [
   {
     path: '/home',
     name: 'Home',
-    component: Home
+    component: GameSelection
   },
+  /* {
+    path: '/home',
+    name: 'Home',
+    component: Home
+  }, */
   {
     path: '/singleplayer',
     name: 'SinglePlayer',

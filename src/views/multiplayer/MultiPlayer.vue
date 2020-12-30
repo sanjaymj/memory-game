@@ -1,6 +1,7 @@
-
+/* eslint-disable */
 <template>
   <div>
+    <GameStartNotifier />
     <v-dialog v-model="gameOver" max-width="600px">
       <v-card :color="'#fff'">
         <div class="d-flex-column justify-space-between">
@@ -78,7 +79,7 @@
       rounded
       color="success"
       sm
-      @click="startGame()"
+      @click="onStartButtonClick()"
       >Start Game</v-btn
     >
     <div v-if="gameStarted">
@@ -93,16 +94,18 @@ import { State } from "vuex-class";
 import store from "../../store";
 import { FirebaseDataHandler } from "@/services/FirebaseDataHandler";
 import CurrentPlayerTurnLabel from "./CurrentPlayerTurnLabel.vue";
+import GameStartNotifier from "./GameStartNotifier.vue";
 import PlayerScores from "./PlayerScores.vue";
 
 @Component({
-  components: { CurrentPlayerTurnLabel, PlayerScores },
+  components: { CurrentPlayerTurnLabel, PlayerScores, GameStartNotifier },
 })
 export default class MultiPlayer extends Vue {
   @State defaultImages!: boolean;
   @State boardContent!: any;
   @State user!: any;
   @State gameGuest!: any;
+  @State requestToStartGame!: any;
   @State gameHost!: any;
   @State currentTurn!: any;
   @State boardId!: any;
@@ -289,6 +292,12 @@ export default class MultiPlayer extends Vue {
     console.log(this.currentTurn);
   }
 
+  @Watch("$store.state.bothPlayersReady")
+  onValueChanged4() {
+    console.log("starting game");
+    this.startGame();
+  }
+
   @Watch("$store.state.gameGuest")
   onValueChanged2() {
     this.guestScore = (this.gameGuest["score"] / 16) * 200;
@@ -314,6 +323,10 @@ export default class MultiPlayer extends Vue {
     store.commit("updateMultiPlayerBoardCreationState", false);
 
     this.$router.back();
+  }
+
+  onStartButtonClick() {
+    new FirebaseDataHandler().requestToStartGame(this.boardId);
   }
 
   startGame() {

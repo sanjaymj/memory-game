@@ -1,3 +1,4 @@
+
 <template>
   <div class="pa-10">
     <v-progress-linear v-model="guestScore" color="amber" height="25">

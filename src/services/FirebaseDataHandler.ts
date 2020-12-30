@@ -7,12 +7,13 @@ export class FirebaseDataHandler {
     public createMultiPlayerBoard(user: User, boardContent, imageCat: boolean) {
         console.log("in here");
         const boardId = Math.floor(1000 + Math.random() * 9000).toString();
-        const newBoard = {
+        const newBoard: Board = {
             id: boardId,
             hostUser: user,
             currentTurn: user.name,
             boardItems: boardContent,
-            defaultCategory: imageCat
+            defaultCategory: imageCat,
+            requestToStartGame: false,
         };
         console.dir(newBoard);
 
@@ -37,6 +38,14 @@ export class FirebaseDataHandler {
         db.collection("locations")
             .doc(boardId.toString())
             .update({ boardItems: cards })
+    }
+
+    public requestToStartGame(boardId) {
+        db.collection("locations")
+            .doc(boardId.toString())
+            .update({ requestToStartGame: true }).then(val => {
+                store.commit('updateRequestToStartGame', true);
+            });
     }
 
     public updateScore(param: string, cards: any, boardId) {
@@ -106,6 +115,10 @@ export class FirebaseDataHandler {
 
             if (val.data()!["defaultCategory"] != undefined) {
                 store.commit("setDefaultMode", val.data()!["defaultCategory"]);
+            }
+
+            if (val.data()!["requestToStartGame"] != undefined) {
+                store.commit("updateRequestToStartGame", val.data()!["requestToStartGame"]);
             }
         });
     }

@@ -50,7 +50,9 @@ const state = {
   gameGuest: currentuser,
   currentTurn: '',
   showUploadImageDialog: false,
-  gameMode: GameMode.NONE
+  gameMode: GameMode.NONE,
+  requestToStartGame: false,
+  bothPlayersReady: false
 };
 
 const mutations = {
@@ -118,6 +120,19 @@ const mutations = {
 
   updateGameMode(state: any, payload: any) {
     state.gameMode = payload;
+  },
+
+  updateRequestToStartGame(state: any, payload: any) {
+    if (payload !== state.requestToStartGame) {
+      state.requestToStartGame = payload;
+    }
+
+  },
+  updateBothPlayersReady(state: any, payload: any) {
+    if (payload !== state.bothPlayersReady) {
+      state.bothPlayersReady = payload;
+    }
+
   }
 }
 

@@ -1,11 +1,14 @@
 <template>
-  <v-container fluid justify="end" class="test1">
-    <v-img
+  <v-container fluid justify="end" class="test1 container">
+    <!-- <v-img
       class="test2"
       lazy-src="https://www.fluentu.com/blog/wp-content/uploads/2016/09/thinking-in-a-foreign-language-e1479154410182.png"
       src="https://www.fluentu.com/blog/wp-content/uploads/2016/09/thinking-in-a-foreign-language-e1479154410182.png"
-    ></v-img>
-    <v-form fill-height v-model="valid" class="test1">
+    ></v-img> -->
+    <div class="test2">
+      <img src="../assets/my-logo.png" />
+    </div>
+    <v-form fill-height v-model="valid" class="">
       <v-row align="center" justify="center">
         <v-col cols="12" md="4">
           <v-text-field
@@ -16,7 +19,9 @@
             required
           ></v-text-field>
         </v-col>
-        <v-col>
+      </v-row>
+      <v-row align="center" justify="center">
+        <v-col cols="12" md="4">
           <v-btn
             block
             depressed
@@ -64,7 +69,6 @@ export default class SignUp extends Vue {
   background: url("https://www.fluentu.com/blog/wp-content/uploads/2016/09/thinking-in-a-foreign-language-e1479154410182.png");
 
   background-repeat: no-repeat;
-  object-fit: cover;
 }
 
 .test1 {
@@ -73,6 +77,21 @@ export default class SignUp extends Vue {
 }
 
 .test2 {
-  height: 65%;
+  background: #3a3a3a;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.v-image__image--cover {
+  background-size: auto;
 }
 </style>

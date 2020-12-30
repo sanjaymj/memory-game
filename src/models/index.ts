@@ -32,6 +32,7 @@ export interface Board {
     winner?: Player;
     boardItems: [];
     defaultCategory: boolean;
+    requestToStartGame: boolean;
 }
 
 export enum GameMode {

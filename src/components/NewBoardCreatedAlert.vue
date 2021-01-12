@@ -16,7 +16,10 @@
  -->
     <v-row justify="center">
       <v-dialog max-width="600px" :value="!updateHostStatus" persistent>
-        <v-card :color="'#fff'" class="mx-auto" outlined loading elevation="20">
+        <v-card :color="'#fff'" class="mx-auto" :loading="true" elevation="2">
+          <template slot="progress">
+            <v-progress-linear color="red" indeterminate></v-progress-linear>
+          </template>
           <v-list-item :key="boardId" three-line>
             <v-list-item-content align="center">
               <div class="overline mb-4">Created a new board</div>

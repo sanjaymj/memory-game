@@ -14,6 +14,9 @@ export class FirebaseDataHandler {
             boardItems: boardContent,
             defaultCategory: imageCat,
             requestToStartGame: false,
+            guestRequestToStartGame: false,
+            hostRequestToStartGame: false,
+            deleteBoard: false,
         };
         console.dir(newBoard);
 
@@ -45,6 +48,40 @@ export class FirebaseDataHandler {
             .doc(boardId.toString())
             .update({ requestToStartGame: true }).then(val => {
                 store.commit('updateRequestToStartGame', true);
+            });
+    }
+
+    public deleteBoard(boardId) {
+        console.log("delete board");
+        db.collection("locations")
+            .doc(boardId.toString())
+            .update({ deleteBoard: true }).then(val => {
+                store.commit('markBoardForDeletion', true);
+                console.log("delete success")
+                /* setTimeout(() => {
+                    db.collection("locations")
+                        .doc(boardId.toString())
+                        .delete().then(val => {
+                            console.log("deleteBoard")
+                        })
+                }, 3000) */
+            }).catch((val) => console.log(val));
+
+    }
+
+    public hostRequestToStartGame(boardId) {
+        db.collection("locations")
+            .doc(boardId.toString())
+            .update({ hostRequestToStartGame: true }).then(val => {
+                store.commit('updateHostRequestToStartGame', true);
+            });
+    }
+
+    public guestRequestToStartGame(boardId) {
+        db.collection("locations")
+            .doc(boardId.toString())
+            .update({ guestRequestToStartGame: true }).then(val => {
+                store.commit('updateGuestRequestToStartGame', true);
             });
     }
 
@@ -119,6 +156,18 @@ export class FirebaseDataHandler {
 
             if (val.data()!["requestToStartGame"] != undefined) {
                 store.commit("updateRequestToStartGame", val.data()!["requestToStartGame"]);
+            }
+
+            if (val.data()!["hostRequestToStartGame"] != undefined) {
+                store.commit("updateHostRequestToStartGame", val.data()!["hostRequestToStartGame"]);
+            }
+
+            if (val.data()!["guestRequestToStartGame"] != undefined) {
+                store.commit("updateGuestRequestToStartGame", val.data()!["guestRequestToStartGame"]);
+            }
+
+            if (val.data()!["deleteBoard"] != undefined) {
+                store.commit("markBoardForDeletion", val.data()!["deleteBoard"]);
             }
         });
     }

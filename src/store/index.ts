@@ -3,6 +3,9 @@ import Vuex from 'vuex'
 import { Card, GameMode, User } from '../models';
 Vue.use(Vuex)
 const cachedUser = localStorage.getItem('mem-user');
+const cachedUserInfo = localStorage.getItem('mem-user-user-info');
+
+const cachedInfoScreenSettings = cachedUserInfo !== null ? JSON.parse(cachedUserInfo)["info-screen"] === 'true' : true;
 
 const currentuser: User = {
   id: cachedUser !== null ? JSON.parse(cachedUser)["id"] : '',
@@ -52,12 +55,15 @@ const state = {
   showUploadImageDialog: false,
   gameMode: GameMode.NONE,
   requestToStartGame: false,
-  bothPlayersReady: false
+  hostRequestToStartGame: false,
+  guestRequestToStartGame: false,
+  deleteBoard: false,
+  bothPlayersReady: false,
+  showInfoScreen: cachedInfoScreenSettings
 };
 
 const mutations = {
   updateImages(state: any, payload: any) {
-    console.log('update!!!!!');
     state.images = payload.images;
   },
 
@@ -128,11 +134,53 @@ const mutations = {
     }
 
   },
+
+  updateGuestRequestToStartGame(state: any, payload: any) {
+    if (payload !== state.guestRequestToStartGame) {
+      state.guestRequestToStartGame = payload;
+    }
+  },
+
+  updateHostRequestToStartGame(state: any, payload: any) {
+    if (payload !== state.hostRequestToStartGame) {
+      state.hostRequestToStartGame = payload;
+    }
+  },
+
+  markBoardForDeletion(state: any, payload: any) {
+
+    state.deleteBoard = payload;
+
+  },
+
   updateBothPlayersReady(state: any, payload: any) {
     if (payload !== state.bothPlayersReady) {
       state.bothPlayersReady = payload;
     }
 
+  },
+
+  updateInfoScreenStatus(state: any, payload: any) {
+
+    state.showInfoScreen = payload;
+
+
+  },
+
+  reset(state: any, payload) {
+    state.images = [];
+    state.defaultImages = false,
+      state.imageCategory = '',
+      state.multiPlayerBoardCreated = false,
+      state.joinMultiPlayerBoardAsGuest = false,
+      state.joinMultiPlayerBoardAsHost = false,
+      state.boardId = '9956',
+      state.gameMode = GameMode.NONE,
+      state.requestToStartGame = false,
+      state.hostRequestToStartGame = false,
+      state.guestRequestToStartGame = false,
+      state.deleteBoard = false,
+      state.bothPlayersReady = false
   }
 }
 

@@ -5,8 +5,11 @@ import store from './store'
 import vuetify from './plugins/vuetify';
 import firebase from 'firebase';
 import firestore from 'firebase/firestore';
+import Meta from 'vue-meta';
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 Vue.config.productionTip = false
+
+Vue.use(Meta);
 
 const firebaseConfig = {
   apiKey: "AIzaSyCB0NZinOdJaNoVCMsck9ZWeg5nQIYa9zo",
@@ -26,6 +29,7 @@ new Vue({
   render: h => h(App),
   created() {
     firebase.initializeApp(firebaseConfig)
+    firebase.analytics();
   }
 }).$mount('#app')
 

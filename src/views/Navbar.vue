@@ -74,7 +74,7 @@ export default class SignUp extends Vue {
 
   items = [
     { title: "Home", icon: "mdi-view-dashboard", route: "home" },
-    // { title: "About", icon: "mdi-information", route: "about" },
+    { title: "About", icon: "mdi-information", route: "about" },
   ];
 
   onSignOutClick() {

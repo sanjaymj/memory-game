@@ -33,6 +33,9 @@ export interface Board {
     boardItems: [];
     defaultCategory: boolean;
     requestToStartGame: boolean;
+    hostRequestToStartGame: boolean;
+    guestRequestToStartGame: boolean;
+    deleteBoard: boolean;
 }
 
 export enum GameMode {

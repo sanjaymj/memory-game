@@ -5,7 +5,10 @@
     <v-dialog v-model="gameOver" max-width="600px">
       <v-card :color="'#fff'">
         <div class="d-flex-column justify-space-between">
-          <div>
+          <div v-if="drawGame">
+            <v-card-title class="headline">Draw Game !!</v-card-title>
+          </div>
+          <div v-if="!drawGame">
             <v-card-title class="headline">Winner is {{ winner }}</v-card-title>
           </div>
           <div>
@@ -109,12 +112,14 @@ export default class MultiPlayer extends Vue {
   @State gameHost!: any;
   @State currentTurn!: any;
   @State boardId!: any;
+  @State deleteBoard!: boolean;
 
   public cards: Card[] = [];
   public count = 0;
   public flippedSource = "https://cdn.vuetifyjs.com/images/cards/plane.jpg";
   public gameStarted = false;
   public gameOver = false;
+  public drawGame = false;
 
   public matched = false;
 
@@ -145,13 +150,15 @@ export default class MultiPlayer extends Vue {
   }
 
   toggleCard(card: any) {
-    if (this.currentTurn == this.user["name"]) {
-      this.count++;
+    if (card.isFlipped) {
+      if (this.currentTurn == this.user["name"]) {
+        this.count++;
 
-      if (this.count === 1) {
-        this.toggleFirstCard(card);
-      } else if (this.count === 2) {
-        this.toggleSecondCard(card);
+        if (this.count === 1) {
+          this.toggleFirstCard(card);
+        } else if (this.count === 2) {
+          this.toggleSecondCard(card);
+        }
       }
     }
   }
@@ -267,7 +274,9 @@ export default class MultiPlayer extends Vue {
     const card = this.cards.find((card) => !card.isMatched);
     this.gameOver = !card;
     if (this.gameOver) {
-      if (this.guestScore < this.hostScore) {
+      if (this.guestScore === this.hostScore) {
+        this.drawGame = true;
+      } else if (this.guestScore < this.hostScore) {
         this.winner = this.gameHost["name"];
       } else {
         this.winner = this.gameGuest["name"];
@@ -279,6 +288,9 @@ export default class MultiPlayer extends Vue {
   @Watch("$store.state.boardContent")
   onValueChanged() {
     this.cards = this.boardContent;
+    if (this.deleteBoard) {
+      this.goBack();
+    }
   }
 
   @Watch("$store.state.gameHost")
@@ -304,8 +316,15 @@ export default class MultiPlayer extends Vue {
     this.findWinner();
   }
 
+  @Watch("$store.state.deleteBoard")
+  onValueChanged30() {
+    store.commit("reset", true);
+    this.$router.back();
+  }
+
   restartGame() {
     this.gameOver = false;
+    this.drawGame = false;
     this.cards.forEach((card) => {
       card.isFlipped = true;
       card.isMatched = false;
@@ -320,13 +339,20 @@ export default class MultiPlayer extends Vue {
   }
 
   goBack() {
-    store.commit("updateMultiPlayerBoardCreationState", false);
+    //store.commit("updateMultiPlayerBoardCreationState", false);
 
+    //new FirebaseDataHandler().deleteBoard(this.boardId);
+    store.commit("reset", true);
     this.$router.back();
   }
 
   onStartButtonClick() {
-    new FirebaseDataHandler().requestToStartGame(this.boardId);
+    if (this.gameHost["name"] == this.user["name"]) {
+      new FirebaseDataHandler().hostRequestToStartGame(this.boardId);
+    } else {
+      new FirebaseDataHandler().guestRequestToStartGame(this.boardId);
+    }
+    //new FirebaseDataHandler().requestToStartGame(this.boardId);
   }
 
   startGame() {

@@ -142,43 +142,46 @@ export default class SinglePlayer extends Vue {
   };
 
   toggleCard(card: any) {
-    this.count++;
+    if (card.isFlipped) {
+      this.count++;
 
-    if (this.count < 2) {
-      card.isFlipped = !card.isFlipped;
-      this.cardOriginal = this.cards.find((e) => e.id === card.id);
-      this.cardOriginal!.isFlipped = false;
-    } else if (this.count == 2) {
-      console.log("flipped second card");
-      card.isFlipped = !card.isFlipped;
+      if (this.count < 2) {
+        card.isFlipped = !card.isFlipped;
+        this.cardOriginal = this.cards.find((e) => e.id === card.id);
+        this.cardOriginal!.isFlipped = false;
+      } else if (this.count == 2) {
+        console.log("flipped second card");
+        card.isFlipped = !card.isFlipped;
 
-      this.cardPair = this.cards.find((e) => e.id === card.id);
-      if (this.cardPair && this.cardOriginal) {
-        this.cardPair.isFlipped = false;
-        console.log(this.cardPair);
-        if (
-          this.cardPair.id === this.cardOriginal.pairCardId &&
-          this.cardOriginal.isFlipped === this.cardPair.isFlipped
-        ) {
-          console.log("here");
-          this.cardPair.isMatched = true;
-          this.cardOriginal.isMatched = true;
-          this.matchedCardCount++;
-          this.progressValue = (this.matchedCardCount / 16) * 200;
-          card.isMatched = true;
-          this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/5744";
-          new Audio(this.audioToPlay).play();
-        } else {
-          new Audio(this.audioToPlay).play();
+        this.cardPair = this.cards.find((e) => e.id === card.id);
+        if (this.cardPair && this.cardOriginal) {
+          this.cardPair.isFlipped = false;
+          console.log(this.cardPair);
+          if (
+            this.cardPair.id === this.cardOriginal.pairCardId &&
+            this.cardOriginal.isFlipped === this.cardPair.isFlipped
+          ) {
+            console.log("here");
+            this.cardPair.isMatched = true;
+            this.cardOriginal.isMatched = true;
+            this.matchedCardCount++;
+            this.progressValue =
+              (this.matchedCardCount / this.cards.length) * 200;
+            card.isMatched = true;
+            this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/5744";
+            new Audio(this.audioToPlay).play();
+          } else {
+            new Audio(this.audioToPlay).play();
+          }
+
+          setTimeout(() => {
+            this.count = 0;
+            this.totalTurns++;
+            this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/3518";
+            this.cards.forEach((card) => (card.isFlipped = true));
+            this.findWinner();
+          }, 1000);
         }
-
-        setTimeout(() => {
-          this.count = 0;
-          this.totalTurns++;
-          this.audioToPlay = "https://www.fesliyanstudios.com/play-mp3/3518";
-          this.cards.forEach((card) => (card.isFlipped = true));
-          this.findWinner();
-        }, 1000);
       }
     }
   }
@@ -240,6 +243,7 @@ export default class SinglePlayer extends Vue {
   }
 
   goBack() {
+    store.commit("reset", true);
     this.$router.back();
   }
 

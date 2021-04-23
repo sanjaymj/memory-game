@@ -58,15 +58,23 @@ export default class CardCategoryDialog extends Vue {
   @State defaultImages!: boolean;
   public customImages = false;
   private avatarCollection: any = [];
-  items = [
-    "huccha",
-    "cartoons",
-    "vehicles",
-    "superhero",
-    "use images from my device",
-  ];
+  items = ["use images from my device"];
   category = "";
   images: any = [];
+
+  imageCount = 0;
+
+  created() {
+    const storageRef = firebase.storage();
+    storageRef
+      .ref("categories")
+      .listAll()
+      .then((val) => {
+        val["prefixes"].forEach((val) => {
+          this.items.unshift(val["name"]);
+        });
+      });
+  }
 
   startNow() {
     console.log("cat is ", this.category);
@@ -77,12 +85,14 @@ export default class CardCategoryDialog extends Vue {
       this.createBoard();
     } else {
       if (this.gameMode == GameMode.SINGLEPLAYER) {
-        store.commit("setDefaultMode", true);
+        this.createSinglePlayerBoard();
+        /*store.commit("setDefaultMode", true);
         store.commit("updateImageCategory", this.category);
         store.commit("updateGameMode", GameMode.NONE);
-        this.$router.push("/singleplayer");
+        this.$router.push("/singleplayer");*/
       } else {
-        store.commit("setDefaultMode", true);
+        this.createMultiPlayerBoard();
+        /*store.commit("setDefaultMode", true);
         store.commit("updateImageCategory", this.category);
         store.commit("updateGameMode", GameMode.NONE);
         store.commit("setBoardContent", this.category);
@@ -90,9 +100,65 @@ export default class CardCategoryDialog extends Vue {
           this.user,
           this.boardContent,
           true
-        );
+        );*/
         //this.$router.push("/singleplayer");
       }
+    }
+  }
+
+  createSinglePlayerBoard() {
+    console.log("create single player board");
+    for (let i = 1; i < 9; i++) {
+      const storageRef = firebase
+        .storage()
+        .ref("categories/" + this.category)
+        .child("img_" + i.toString() + ".jpeg");
+
+      storageRef
+        .getDownloadURL()
+        .then((url) => {
+          this.avatarCollection.push(url);
+          this.imageCount++;
+        })
+        .catch((error) => {
+          console.log("error");
+        })
+        .finally(() => {
+          if (this.imageCount === 8) {
+            this.customImages = true;
+            store.commit("setDefaultMode", false);
+            store.commit("updateUploadImageDialog", true);
+            this.createBoard();
+          }
+        });
+    }
+  }
+
+  createMultiPlayerBoard() {
+    console.log("create single player board");
+    for (let i = 1; i < 9; i++) {
+      const storageRef = firebase
+        .storage()
+        .ref("categories/" + this.category)
+        .child("img_" + i.toString() + ".jpeg");
+
+      storageRef
+        .getDownloadURL()
+        .then((url) => {
+          this.avatarCollection.push(url);
+          this.imageCount++;
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          if (this.imageCount === 8) {
+            this.customImages = true;
+            store.commit("setDefaultMode", false);
+            store.commit("updateUploadImageDialog", true);
+            this.createBoard();
+          }
+        });
     }
   }
 
@@ -105,7 +171,6 @@ export default class CardCategoryDialog extends Vue {
   }
 
   onChange(val) {
-    console.log(val);
     this.category = val;
     if (this.category === this.items[this.items.length - 1]) {
       store.commit("setDefaultMode", true);
@@ -143,14 +208,13 @@ export default class CardCategoryDialog extends Vue {
 
   createBoard() {
     console.log("game mode is ", this.gameMode);
-    console.log(this.images);
     store.commit("updateUploadImageDialog", false);
     const cards: Card[] = [];
 
-    for (let i = 0; i < this.images.length * 2; i++) {
+    for (let i = 0; i < this.imageCount * 2; i++) {
       const card: Card = {
         id: i,
-        pairCardId: this.images.length * 2 - i - 1,
+        pairCardId: this.imageCount * 2 - i - 1,
         isMatched: false,
         isFlipped: false,
         avatar:
@@ -190,6 +254,7 @@ export default class CardCategoryDialog extends Vue {
       reader.onload = (event) => {
         const imageUrl = event.target!.result;
         this.images.push(imageUrl);
+        this.imageCount++;
       };
       this.uploadToStorage(files[index], index);
       reader.readAsDataURL(files[index]);

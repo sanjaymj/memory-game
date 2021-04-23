@@ -41,6 +41,7 @@
             <v-img
               v-if="!card.isFlipped || card.isMatched"
               :src="card.avatar"
+              alt="online memory game images"
               class="white--text align-end"
               v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -49,6 +50,7 @@
             <v-img
               v-else
               :src="flippedSource"
+              alt="online memory game images"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               height="10rem"
@@ -59,6 +61,7 @@
             <v-img
               v-if="!card.isFlipped || card.isMatched"
               :src="cardImage(card)"
+              alt="online memory game images"
               class="white--text align-end"
               v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -67,6 +70,7 @@
             <v-img
               v-else
               :src="flippedSource"
+              alt="online memory game images"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               height="10rem"
@@ -150,18 +154,15 @@ export default class SinglePlayer extends Vue {
         this.cardOriginal = this.cards.find((e) => e.id === card.id);
         this.cardOriginal!.isFlipped = false;
       } else if (this.count == 2) {
-        console.log("flipped second card");
         card.isFlipped = !card.isFlipped;
 
         this.cardPair = this.cards.find((e) => e.id === card.id);
         if (this.cardPair && this.cardOriginal) {
           this.cardPair.isFlipped = false;
-          console.log(this.cardPair);
           if (
             this.cardPair.id === this.cardOriginal.pairCardId &&
             this.cardOriginal.isFlipped === this.cardPair.isFlipped
           ) {
-            console.log("here");
             this.cardPair.isMatched = true;
             this.cardOriginal.isMatched = true;
             this.matchedCardCount++;

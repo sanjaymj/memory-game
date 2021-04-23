@@ -66,7 +66,6 @@ export default class MultiPlayerSelection extends Vue {
   }
 
   test(val: string) {
-    console.log("val is ", val);
     new FirebaseDataHandler().joinBoard(val, this.user);
     //store.commit("setDefaultMode", true);
 

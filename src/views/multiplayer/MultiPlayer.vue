@@ -25,7 +25,7 @@
 
     <v-container fluid>
       <div v-if="gameStarted">
-        <CurrentPlayerTurnLabel />
+        <PlayerScores />
       </div>
       <div v-else>
         <p class="text-center Roboto px-4 pt-4 pb-3">
@@ -39,6 +39,7 @@
             <v-img
               v-if="!card.isFlipped || card.isMatched"
               :src="card.avatar"
+              alt="online memory game images"
               class="white--text align-end"
               v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -47,6 +48,7 @@
             <v-img
               v-else
               :src="flippedSource"
+              alt="online memory game images"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               height="8rem"
@@ -57,6 +59,7 @@
             <v-img
               v-if="!card.isFlipped || card.isMatched"
               :src="cardImage(card)"
+              alt="online memory game images"
               class="white--text align-end"
               v-bind:class="{ 'match-overlay': card.isMatched }"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -65,6 +68,7 @@
             <v-img
               v-else
               :src="flippedSource"
+              alt="online memory game images"
               class="white--text align-end"
               gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               height="8rem"
@@ -85,9 +89,6 @@
       @click="onStartButtonClick()"
       >Start Game</v-btn
     >
-    <div v-if="gameStarted">
-      <PlayerScores />
-    </div>
   </div>
 </template>
 <script lang="ts">
@@ -137,12 +138,10 @@ export default class MultiPlayer extends Vue {
 
   createBoard() {
     this.cards = this.boardContent;
-    console.log(this.cards);
     new FirebaseDataHandler().updateCards(this.cards, this.boardId);
   }
 
   shuffle() {
-    console.log("in shuffle");
     for (let i = this.cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
@@ -299,14 +298,8 @@ export default class MultiPlayer extends Vue {
     this.findWinner();
   }
 
-  @Watch("$store.state.currentTurn")
-  onValueChanged3() {
-    console.log(this.currentTurn);
-  }
-
   @Watch("$store.state.bothPlayersReady")
   onValueChanged4() {
-    console.log("starting game");
     this.startGame();
   }
 
